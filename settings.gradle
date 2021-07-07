@@ -1,0 +1,2 @@
+rootProject.name = "MyCrud"
+include ':app'
