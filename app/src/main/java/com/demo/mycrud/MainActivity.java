@@ -17,6 +17,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class MainActivity extends AppCompatActivity {
 
     FirebaseDatabase firebaseDatabase;
@@ -26,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     EditText nameEt;
     Button addBtn, readBtn;
     TextView readTv;
+    List<String> names;
 
 
     @Override
@@ -42,8 +47,95 @@ public class MainActivity extends AppCompatActivity {
 
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference("users");
+        databaseReference = firebaseDatabase.getReference();
 
+
+        //   delete operation
+
+        //1.
+        databaseReference.child("appName").setValue(null);
+
+        //2.
+        databaseReference.child("appName").removeValue();
+
+        //3. with remove listener
+        databaseReference.child("appName").removeEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
+
+
+        //update operation\
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put("appName","XYZ");
+
+        databaseReference.updateChildren(updateValue);
+
+
+
+
+
+        databaseReference.child("users").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull  DataSnapshot snapshot) {
+
+
+
+
+//                snapshot.g
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull  DatabaseError error) {
+
+            }
+        });
+
+
+        databaseReference.child("employees").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull  DataSnapshot snapshot) {
+
+                snapshot.getChildren();
+
+
+                for (DataSnapshot dataSnapshot:snapshot.getChildren()) {
+
+                    Map childItem = (Map) dataSnapshot.getValue();
+                    childItem.get("name");
+                    childItem.get("salary");
+                    Map address= (Map) childItem.get("address");
+                    address.get("area");
+                    address.get("pincode");
+
+
+                    names.add((String) childItem.get("name"));
+
+                }
+
+
+
+
+
+//                snapshot.g
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull  DatabaseError error) {
+
+            }
+        });
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
                     String key = databaseReference.push().getKey();
 
+                    assert key != null;
                     databaseReference.child(key).child("name").setValue(nameEt.getText().toString().trim());
                     Toast.makeText(MainActivity.this, "Added", Toast.LENGTH_SHORT).show();
 
@@ -67,11 +160,15 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
 
-                databaseReference.child("u2").child("name").addValueEventListener(new ValueEventListener() {
+                //    users/u2/name
+                databaseReference.child("e1").child("address").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                        readTv.setText(snapshot.getValue(String.class));
+                        Map values = (Map) snapshot.getValue();
+
+                        String area1 = (String) values.get("area");
+                        readTv.setText(area1);
 
 
                     }
@@ -81,6 +178,20 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
+
+                databaseReference.child("e1").child("address").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+
             }
         });
 
